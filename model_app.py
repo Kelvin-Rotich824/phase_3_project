@@ -4,6 +4,7 @@ import pandas as pd
 import joblib
 from xgboost import XGBClassifier
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.pipeline import Pipeline
 
 # Load the trained model
 model = joblib.load('customer_churn_model.pkl') 
