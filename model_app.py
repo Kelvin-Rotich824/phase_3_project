@@ -17,8 +17,7 @@ if uploaded_file is not None:
     input_data = pd.read_csv(uploaded_file)
     st.write("Input Data:")
     st.dataframe(input_data)
-    scaler = MinMaxScaler()
-    input_data = scaler.fit_transform(input_data)
+    
     # Make predictions using the trained model
     predictions = model.predict(input_data)
 
