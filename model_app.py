@@ -12,7 +12,7 @@ minmax_scaler = MinMaxScaler()
 
 def predict(features):
     # Scale the features using the MinMaxScaler
-    scaled_features = minmax_scaler.transform(features)
+    scaled_features = minmax_scaler.fit_transform(features)
 
     # Make predictions using the XGBoost model
     prediction = model.predict(scaled_features)
