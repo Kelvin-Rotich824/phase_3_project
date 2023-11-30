@@ -31,7 +31,7 @@ def main():
         input_features = np.array(feature_sliders).reshape(1, -1)
 
         # Get the prediction
-        prediction = predict(input_features)
+        prediction = model.predict(input_features)
 
         # Display the prediction
         st.success(f"The prediction is: {prediction[0]}")
