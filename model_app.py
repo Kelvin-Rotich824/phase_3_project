@@ -4,7 +4,8 @@ import pandas as pd
 import joblib
 from xgboost import XGBClassifier
 from sklearn.preprocessing import MinMaxScaler
-
+from sklearn.model selection import train_test_split
+from sklearn.pipeline import Pipeline
 # Load the trained model
 model = joblib.load('customer_churn_model.pkl') 
 
@@ -18,6 +19,7 @@ if uploaded_file is not None:
     st.write("Input Data:")
     st.dataframe(input_data)
     
+    model.fit(input_data)
     # Make predictions using the trained model
     predictions = model.predict(input_data)
 
