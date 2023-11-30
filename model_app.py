@@ -2,10 +2,9 @@
 import streamlit as st
 import pandas as pd
 import joblib
-from xgboost import XGBClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model selection import train_test_split
-from sklearn.pipeline import Pipeline
+
 # Load the trained model
 model = joblib.load('customer_churn_model.pkl') 
 
@@ -18,10 +17,24 @@ if uploaded_file is not None:
     input_data = pd.read_csv(uploaded_file)
     st.write("Input Data:")
     st.dataframe(input_data)
+    def binary_feature(target_value):
+        if target_value == 'yes':
+            return 1
+        else:
+            return 0
+
+# Applying the function to the selected columns.
+    for column in input_data[['international plan', 'voice mail plan']]:
+        input_data[column] = input_data[column].apply(binary_feature)
+
+    y = input_data['churn']
+    X = input_data.drop(['churn', 'state', 'area code', 'phone number'], axis=1)
     
-    model.fit(input_data)
+    scaler = MinMaxScaler()
+    X = scaler.fit_transform(X)
+    model.fit(X, y)
     # Make predictions using the trained model
-    predictions = model.predict(input_data)
+    predictions = model.predict(X)
 
     # Display the predictions
     st.write("Predictions:")
