@@ -5,16 +5,13 @@ import xgboost as xgb
 import numpy as np
 import joblib
 
-# Example XGBoost model and MinMaxScaler
-# Replace this with your trained model and scaler
-model = joblib.load('customer_churn_model.pkl')
-minmax_scaler = MinMaxScaler()
-
 def predict(features):
     # Scale the features using the MinMaxScaler
+    minmax_scaler = MinMaxScaler()
     scaled_features = minmax_scaler.fit_transform(features)
 
     # Make predictions using the XGBoost model
+    model = joblib.load('customer_churn_model.pkl')
     prediction = model.predict(scaled_features)
 
     return prediction
@@ -31,6 +28,7 @@ def main():
         input_features = np.array(feature_sliders).reshape(1, -1)
 
         # Get the prediction
+        model = joblib.load('customer_churn_model.pkl')
         prediction = model.predict(input_features)
 
         # Display the prediction
