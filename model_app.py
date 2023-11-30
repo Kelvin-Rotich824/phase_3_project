@@ -1,41 +1,39 @@
 
-import streamlit as st
-import pandas as pd
-import joblib
-from sklearn.ensemble import RandomForestClassifier
+from flask import Flask, request, jsonify
 from sklearn.preprocessing import MinMaxScaler
+from xgboost import XGBClassifier
+import numpy as np
+import joblib
 
-# Load the trained model
-model = joblib.load('customer_churn_model.pkl') 
+app = Flask(__name__)
 
-# Streamlit app code
-st.title("Your Model Deployment App")
+# Example XGBoost model and MinMaxScaler
+# Replace this with your trained model and scaler
+model = joblib.load('customer_churn_model.pkl')
+minmax_scaler = MinMaxScaler()
 
-# Add input components (example: file upload)
-uploaded_file = st.file_uploader("file")
-if uploaded_file is not None:
-    input_data = pd.read_csv(uploaded_file)
-    st.write("Input Data:")
-    st.dataframe(input_data)
-    def binary_feature(target_value):
-        if target_value == 'yes':
-            return 1
-        else:
-            return 0
+# Endpoint to receive input data and make predictions
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        # Receive input data as JSON
+        data = request.get_json()
 
-# Applying the function to the selected columns.
-    for column in input_data[['international plan', 'voice mail plan']]:
-        input_data[column] = input_data[column].apply(binary_feature)
+        # Assuming input features are in a list named 'features'
+        features = np.array(data['features']).reshape(1, -1)
 
-    y = input_data['churn']
-    X = input_data.drop(['churn', 'state', 'area code', 'phone number'], axis=1)
-    
-    scaler = MinMaxScaler()
-    X = scaler.fit_transform(X)
-    model.fit(X, y)
-    # Make predictions using the trained model
-    predictions = model.predict(X)
+        # Scale the features using the MinMaxScaler
+        scaled_features = minmax_scaler.transform(features)
 
-    # Display the predictions
-    st.write("Predictions:")
-    st.write(predictions)
+        # Make predictions using the XGBoost model
+        prediction = xgb_model.predict(scaled_features)
+
+        # Return the prediction as JSON
+        return jsonify({'prediction': int(prediction[0])})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+if __name__ == '__main__':
+    # Run the Flask app on port 5000
+    app.run(port=5000)
