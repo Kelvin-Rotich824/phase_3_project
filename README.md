@@ -207,7 +207,8 @@ These are some of the recommendations offered:
 * The company should reach out to its customer base and do surveys in order to get insights on their customer needs.
 * They should create more promotions and rewards to increase customer participation with their services.
 
-NEXT STEPS.
+## NEXT STEPS.
+
 Some of the next steps that can be taken after this analysis are:
 * Model deployment.
 * Customer surveys by the company.
