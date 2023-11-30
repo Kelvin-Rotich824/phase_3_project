@@ -1,39 +1,40 @@
 
-from flask import Flask, request, jsonify
+import streamlit as st
 from sklearn.preprocessing import MinMaxScaler
-from xgboost import XGBClassifier
+import xgboost as xgb
 import numpy as np
 import joblib
-
-app = Flask(__name__)
 
 # Example XGBoost model and MinMaxScaler
 # Replace this with your trained model and scaler
 model = joblib.load('customer_churn_model.pkl')
 minmax_scaler = MinMaxScaler()
 
-# Endpoint to receive input data and make predictions
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        # Receive input data as JSON
-        data = request.get_json()
+def predict(features):
+    # Scale the features using the MinMaxScaler
+    scaled_features = minmax_scaler.transform(features)
 
-        # Assuming input features are in a list named 'features'
-        features = np.array(data['features']).reshape(1, -1)
+    # Make predictions using the XGBoost model
+    prediction = model.predict(scaled_features)
 
-        # Scale the features using the MinMaxScaler
-        scaled_features = minmax_scaler.transform(features)
+    return prediction
 
-        # Make predictions using the XGBoost model
-        prediction = xgb_model.predict(scaled_features)
+def main():
+    st.title("XGBoost Model Deployment with Streamlit")
 
-        # Return the prediction as JSON
-        return jsonify({'prediction': int(prediction[0])})
+    # Create input sliders for 16 features
+    feature_sliders = [st.slider(f"Feature {i+1}", 0.0, 1.0, 0.5) for i in range(17)]
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+    # Create a button to make predictions
+    if st.button("Make Prediction"):
+        # Prepare input features as a numpy array
+        input_features = np.array(feature_sliders).reshape(1, -1)
 
-if __name__ == '__main__':
-    # Run the Flask app on port 5000
-    app.run(port=5000)
+        # Get the prediction
+        prediction = predict(input_features)
+
+        # Display the prediction
+        st.success(f"The prediction is: {prediction[0]}")
+
+if __name__ == "__main__":
+    main()
