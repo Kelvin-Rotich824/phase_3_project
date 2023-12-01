@@ -1,7 +1,7 @@
 
 import streamlit as st
 from sklearn.preprocessing import MinMaxScaler
-import xgboost as xgb
+from sklearn.tree import DecisionTreeClassifier
 import joblib
 import pandas as pd
 
