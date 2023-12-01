@@ -2,54 +2,48 @@
 import streamlit as st
 from sklearn.preprocessing import MinMaxScaler
 import xgboost as xgb
-import numpy as np
 import joblib
+import pandas as pd
 
-def predict(features):
-    # Create a mapping function and apply it to the selected columns
-    def binary_feature(target_value):
-        if target_value == 'yes':
-            return 1
-        else:
-            return 0
+# Load the data and perform preprocessing steps
+df = pd.read_csv('customer_churn.csv')
+df = df.drop(['area code', 'state', 'phone number'], axis=1)
 
-# Applying the function to the selected columns.
-    for column in data[['international plan', 'voice mail plan']]:
-        data[column] = data[column].apply(binary_feature)
-        print(f'\n{data[column].value_counts()}')
-        # Scaling the features using the MinMaxScaler
-        minmax_scaler = MinMaxScaler()
-        scaled_features = minmax_scaler.fit_transform(features)
+# Map binary features
+binary_mapping = {'yes': 1, 'no': 0}
+for column in ['international plan', 'voice mail plan']:
+    df[column] = df[column].map(binary_mapping)
 
-        # Making predictions using the model
-        model = joblib.load('customer_churn_model.pkl')
-        y = [True, False]
-        for item in y:
-            model.fit(scaled_features, item)
-        prediction = model.predict(scaled_features)
+features = df.drop(['churn'], axis=1)
+target = df['churn']
 
-        return prediction
+# Scaling the features using the MinMaxScaler   
+minmax_scaler = MinMaxScaler()
+scaled_features = minmax_scaler.fit_transform(features)
+
+def predict(values):
+    # Making predictions using the model
+    model = joblib.load('customer_churn_model.pkl')
+    model.fit(features, target)
+    prediction = model.predict(values.reshape(1, -1))
+    return prediction
 
 def main():
-    st.title("Model Deployment with Streamlit")
+    st.title("Customer Churn Prediction")
+    st.header("Enter your details below to see whether you are likely to churn or not.")
+    
+    # Input form using Streamlit widgets
+    with st.form(key='my_form'):
+        for col in features.columns:
+            st.text_input(col, key=col)
 
-    # Creating input sliders for 17 features
-    feature_sliders = [st.slider(f"Feature {i+1}", 0.0, 1.0, 0.5) for i in range(18)]
+        submit_button = st.form_submit_button(label="Submit")
 
-    # Creating a button to make predictions
-    if st.button("Make Prediction"):
-        # Preparing input features as a numpy array
-        input_features = np.array(feature_sliders).reshape(1, -1)
-
-        # Getting the prediction
-        model = joblib.load('customer_churn_model.pkl')
-        y = [True, False]
-        for item in y:
-            model.fit(input_features, item)
-        prediction = model.predict(input_features)
-
-        # Displaying the prediction
-        st.success(f"The prediction is: {prediction[0]}")
+    if submit_button:
+        input_values = [st.session_state[col] for col in features.columns]
+        scaled_input_values = minmax_scaler.transform([input_values])
+        result = predict(scaled_input_values)
+        st.write(f"Churn Prediction: {'Churn' if result[0] == True else 'No Churn'}")
 
 if __name__ == "__main__":
     main()
