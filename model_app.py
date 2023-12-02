@@ -41,7 +41,7 @@ def main():
 
     if submit_button:
         input_values = [st.session_state[col] for col in features.columns]
-        scaled_input_values = minmax_scaler.transform([input_values])
+        scaled_input_values = minmax_scaler.transform(input_values)
         result = predict(scaled_input_values)
         st.write(f"Churn Prediction: {'Churn' if result[0] == True else 'No Churn'}")
 
